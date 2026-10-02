@@ -8,10 +8,10 @@ import com.uc.ms_security.entity.User;
 import com.uc.ms_security.mapper.SessionMapper;
 import com.uc.ms_security.repository.SessionRepository;
 import com.uc.ms_security.repository.UserRepository;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,15 +26,15 @@ public class SessionService {
     public SessionResponseDTO create(CreateSessionDTO dto) {
         // 1. Validar que el usuario exista
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
                         "Usuario no encontrado con ID: " + dto.getUserId()
                 ));
 
         // 2. Validar que no exista otra sesión con el mismo token
         if (sessionRepository.existsByToken(dto.getToken())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "Ya existe una sesión con este token"
             );
         }
@@ -52,9 +52,9 @@ public class SessionService {
 
     private Session findSession(Long id) {
         return sessionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Sesión no encontrada"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Sesión no encontrada con id: " + id
                 ));
     }
 
@@ -68,8 +68,8 @@ public class SessionService {
         Session session = findSession(id);
 
         if (sessionRepository.existsByTokenAndIdNot(dto.getToken(), id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "El token pertenece a otra sesión"
             );
         }

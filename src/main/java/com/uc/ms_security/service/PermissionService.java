@@ -6,10 +6,10 @@ import com.uc.ms_security.dto.permission.UpdatePermissionDTO;
 import com.uc.ms_security.entity.Permission;
 import com.uc.ms_security.mapper.PermissionMapper;
 import com.uc.ms_security.repository.PermissionRepository;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ public class PermissionService {
     public PermissionResponseDTO create(CreatePermissionDTO dto) {
         String method = dto.getMethod().toUpperCase();
         if (permissionRepository.existsByUrlAndMethod(dto.getUrl(), method)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "Ya existe un permiso para la URL '" + dto.getUrl() + "' y el método '" + method + "'"
             );
         }
@@ -41,9 +41,9 @@ public class PermissionService {
 
     private Permission findPermission(Long id) {
         return permissionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Permiso no encontrado"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Permiso no encontrado con id: " + id
                 ));
     }
 
@@ -58,8 +58,8 @@ public class PermissionService {
         String method = dto.getMethod().toUpperCase();
 
         if (permissionRepository.existsByUrlAndMethodAndIdNot(dto.getUrl(), method, id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "La combinación de URL y método HTTP ya pertenece a otro permiso"
             );
         }

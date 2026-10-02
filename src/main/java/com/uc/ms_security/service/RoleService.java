@@ -6,10 +6,10 @@ import com.uc.ms_security.dto.role.UpdateRoleDTO;
 import com.uc.ms_security.entity.Role;
 import com.uc.ms_security.mapper.RoleMapper;
 import com.uc.ms_security.repository.RoleRepository;
+import com.uc.ms_security.exception.ApplicationException;
+import com.uc.ms_security.exception.ErrorCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -22,8 +22,8 @@ public class RoleService {
 
     public RoleResponseDTO create(CreateRoleDTO dto) {
         if (roleRepository.existsByName(dto.getName())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "Ya existe un rol con este nombre"
             );
         }
@@ -40,9 +40,9 @@ public class RoleService {
 
     private Role findRole(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Rol no encontrado"
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Rol no encontrado con id: " + id
                 ));
     }
 
@@ -56,8 +56,8 @@ public class RoleService {
         Role role = findRole(id);
 
         if (roleRepository.existsByNameAndIdNot(dto.getName(), id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
                     "El nombre de rol ya pertenece a otro registro"
             );
         }
