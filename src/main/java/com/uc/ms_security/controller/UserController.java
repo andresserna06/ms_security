@@ -2,6 +2,7 @@ package com.uc.ms_security.controller;
 
 import com.uc.ms_security.dto.user.CreateUserDTO;
 import com.uc.ms_security.dto.user.UpdateUserDTO;
+import com.uc.ms_security.dto.user.UserDetailResponseDTO;
 import com.uc.ms_security.dto.user.UserResponseDTO;
 import com.uc.ms_security.service.UserService;
 import jakarta.validation.Valid;
@@ -15,25 +16,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService; // Inyección de dependencia
+    private final UserService userService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO create(@Valid @RequestBody CreateUserDTO dto) {
-
         return userService.create(dto);
     }
 
     @GetMapping
     public List<UserResponseDTO> findAll() {
-
-        return userService.findAll(); // Revisar la paginación en caso de tener muchos usuarios, indicarle al servicio que lo devuelva paginado
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     public UserResponseDTO findById(@PathVariable Long id) {
-
         return userService.findById(id);
+    }
+
+    @GetMapping("/{id}/detail")
+    public UserDetailResponseDTO findByIdAndProfile(@PathVariable Long id) {
+        return userService.findByIdWithProfile(id);
     }
 
     @PutMapping("/{id}")
@@ -45,8 +48,11 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { // @PathVariable - Obtener el edintificador de la ruta en una variable
-
+    public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
 }
+
+
+
+

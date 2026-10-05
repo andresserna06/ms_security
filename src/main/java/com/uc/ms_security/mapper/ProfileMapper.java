@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class ProfileMapper {
 
-    public Profile toEntity(CreateProfileDTO dto, User user) { // Recibe DTO y entidad User para asignar la relación
+    public Profile toEntity(CreateProfileDTO dto, User user) {
         Profile profile = new Profile();
 
         profile.setPhone(dto.getPhone());
@@ -22,17 +22,20 @@ public class ProfileMapper {
         return profile;
     }
 
-    public void updateEntity(UpdateProfileDTO dto, Profile profile) { // Modificación por referencia
+    public void updateEntity(UpdateProfileDTO dto, Profile profile) {
         profile.setPhone(dto.getPhone());
         profile.setBirthDate(dto.getBirthDate());
     }
 
-    public ProfileResponseDTO toResponseDTO(Profile profile) { // Mapeo a DTO de respuesta
+    public ProfileResponseDTO toResponseDTO(Profile profile) {
+        if (profile == null) { // Da el caso en que el usuario no tiene perfil, entonces no hay que devolver nada, sino null.
+            return null;
+        }
+
         return new ProfileResponseDTO(
                 profile.getId(),
                 profile.getPhone(),
-                profile.getBirthDate(),
-                profile.getUser() != null ? profile.getUser().getId() : null
+                profile.getBirthDate()
         );
     }
 

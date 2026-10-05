@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public abstract class BaseProfileDTO {
+public abstract class BaseProfileDTO { // ProfileRequestDTO
 
     @NotBlank(
             message = "El teléfono es obligatorio"

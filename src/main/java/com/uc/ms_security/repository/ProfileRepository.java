@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
-    boolean existsByUserId(Long userId);
+    boolean existsByUserId(Long userId); // Verificación de si un usuario tiene un perfil
 
-    boolean existsByPhone(String phone);
+    boolean existsByPhone(String phone); // Verificación de existencia por telefono
 
-    boolean existsByPhoneAndIdNot(String phone, Long id);
+    boolean existsByPhoneAndIdNot(String phone, Long id); // Verificación de existencia por telefono y id
 
-    Optional<Profile> findByUserId(Long userId);
+    Optional<Profile> findByUserId(Long userId); // Buscando un perfil dado el identificador del usuario
 }

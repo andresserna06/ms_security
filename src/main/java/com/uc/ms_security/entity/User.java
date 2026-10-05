@@ -36,4 +36,13 @@ public class User {
             nullable = false
     )
     private String password;
+
+    // Tiene pegado un perfil, un usuario tiene un perfil
+    @OneToOne(
+            mappedBy = "user", // Existe la variable porque existe un usuario relacionado en la tabla profiles
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY // Este Fetch indica que cada que se consulte a un usuario, no se cargue su perfil hasta que sea necesario
+    )
+    private Profile profile;
 }

@@ -9,42 +9,36 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/api/users/{userId}/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
-    private final ProfileService profileService; // Inyección de dependencia
+    private final ProfileService profileService;
+
+    @GetMapping
+    public ProfileResponseDTO findByUserId(@PathVariable Long userId) {
+        return profileService.findByUserId(userId);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProfileResponseDTO create(@Valid @RequestBody CreateProfileDTO dto) {
-        return profileService.create(dto);
+    public ProfileResponseDTO create(
+            @PathVariable Long userId,
+            @Valid @RequestBody CreateProfileDTO dto) {
+        return profileService.create(userId, dto);
     }
 
-    @GetMapping
-    public List<ProfileResponseDTO> findAll() {
-        return profileService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public ProfileResponseDTO findById(@PathVariable Long id) {
-        return profileService.findById(id);
-    }
-
-
-    @PutMapping("/{id}")
+    @PutMapping
     public ProfileResponseDTO update(
-            @PathVariable Long id,
+            @PathVariable Long userId,
             @Valid @RequestBody UpdateProfileDTO dto) {
-        return profileService.update(id, dto);
+        return profileService.update(userId, dto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        profileService.delete(id);
+    public void delete(@PathVariable Long userId) {
+        profileService.delete(userId);
     }
 }

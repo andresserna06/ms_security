@@ -9,5 +9,4 @@ public class ProfileResponseDTO {
     Long id;
     String phone;
     LocalDate birthDate;
-    Long userId;
 }

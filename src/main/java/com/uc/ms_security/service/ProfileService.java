@@ -5,11 +5,11 @@ import com.uc.ms_security.dto.profile.ProfileResponseDTO;
 import com.uc.ms_security.dto.profile.UpdateProfileDTO;
 import com.uc.ms_security.entity.Profile;
 import com.uc.ms_security.entity.User;
-import com.uc.ms_security.mapper.ProfileMapper;
-import com.uc.ms_security.repository.ProfileRepository;
-import com.uc.ms_security.repository.UserRepository;
 import com.uc.ms_security.exception.ApplicationException;
 import com.uc.ms_security.exception.ErrorCase;
+import com.uc.ms_security.mapper.ProfileMapper;
+import com.uc.ms_security.repository.ProfileRepository;
+import com.uc.ms_security.repository.UserRepository; // Inyeccción de dependencias
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,23 +23,20 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final ProfileMapper profileMapper;
 
-    public ProfileResponseDTO create(CreateProfileDTO dto) {
-        // 1. Validar que el usuario exista
-        User user = userRepository.findById(dto.getUserId())
+    public ProfileResponseDTO create(Long userId, CreateProfileDTO dto) {
+        User user = userRepository.findById(userId) // Revisar si existe en la BD
                 .orElseThrow(() -> new ApplicationException(
-                        ErrorCase.NOT_FOUND,
-                        "Usuario no encontrado con ID: " + dto.getUserId()
+                        ErrorCase.NOT_FOUND, // Lanzamos nuestras excepciones personalizadas.
+                        "Usuario no encontrado con ID: " + userId
                 ));
 
-        // 2. Validar que el usuario no tenga ya un perfil asignado (Relación 1 a 1)
-        if (profileRepository.existsByUserId(dto.getUserId())) {
+        if (profileRepository.existsByUserId(userId)) {
             throw new ApplicationException(
                     ErrorCase.ALREADY_EXISTS,
                     "El usuario ya cuenta con un perfil asignado"
             );
         }
 
-        // 3. Validar que el teléfono no esté duplicado
         if (profileRepository.existsByPhone(dto.getPhone())) {
             throw new ApplicationException(
                     ErrorCase.ALREADY_EXISTS,
@@ -57,24 +54,30 @@ public class ProfileService {
         return profileMapper.toResponseDTOList(profiles);
     }
 
-    private Profile findProfile(Long id) {
-        return profileRepository.findById(id)
+    private Profile findProfile(Long userId) {
+        return profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApplicationException(
                         ErrorCase.NOT_FOUND,
-                        "Perfil no encontrado con id: " + id
+                        "Perfil no encontrado para el usuario con id: " + userId
                 ));
     }
 
-    public ProfileResponseDTO findById(Long id) {
-        Profile profile = findProfile(id);
-        return profileMapper.toResponseDTO(profile);
+    public ProfileResponseDTO findByUserId(Long userId) {
+        return profileMapper.toResponseDTO(findProfile(userId));
     }
 
+    public ProfileResponseDTO findById(Long id) {
+        return profileMapper.toResponseDTO(profileRepository.findById(id)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Perfil no encontrado con id: " + id
+                )));
+    }
 
-    public ProfileResponseDTO update(Long id, UpdateProfileDTO dto) {
-        Profile profile = findProfile(id);
+    public ProfileResponseDTO update(Long userId, UpdateProfileDTO dto) {
+        Profile profile = findProfile(userId);
 
-        if (profileRepository.existsByPhoneAndIdNot(dto.getPhone(), id)) {
+        if (profileRepository.existsByPhoneAndIdNot(dto.getPhone(), profile.getId())) {
             throw new ApplicationException(
                     ErrorCase.ALREADY_EXISTS,
                     "El número de teléfono pertenece a otro perfil"
@@ -86,8 +89,7 @@ public class ProfileService {
         return profileMapper.toResponseDTO(updatedProfile);
     }
 
-    public void delete(Long id) {
-        Profile profile = findProfile(id);
-        profileRepository.delete(profile);
+    public void delete(Long userId) {
+        profileRepository.delete(findProfile(userId));
     }
 }

@@ -2,16 +2,21 @@ package com.uc.ms_security.mapper;
 
 import com.uc.ms_security.dto.user.CreateUserDTO;
 import com.uc.ms_security.dto.user.UpdateUserDTO;
+import com.uc.ms_security.dto.user.UserDetailResponseDTO;
 import com.uc.ms_security.dto.user.UserResponseDTO;
 import com.uc.ms_security.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
 
-    public User toEntity(CreateUserDTO dto) { // Recibe DTO de fichitas a muñeco
+    private final ProfileMapper profileMapper;
+
+    public User toEntity(CreateUserDTO dto) {
         User user = new User();
 
         user.setName(dto.getName());
@@ -30,11 +35,20 @@ public class UserMapper {
         }
     }
 
-    public UserResponseDTO toResponseDTO(User user) { // De objeto a fichitas, en este caso el DTO se encargo de no mostrar la contraseña
+    public UserResponseDTO toResponseDTO(User user) {
         return new UserResponseDTO(
                 user.getId(),
                 user.getName(),
                 user.getEmail()
+        );
+    }
+
+    public UserDetailResponseDTO toDetailResponseDTO(User user) {
+        return new UserDetailResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                profileMapper.toResponseDTO(user.getProfile())
         );
     }
 
@@ -44,3 +58,6 @@ public class UserMapper {
                 .toList();
     }
 }
+
+
+

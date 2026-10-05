@@ -40,5 +40,5 @@ public class Profile {
             nullable = false,
             unique = true
     )
-    private User user;
+    private User user; // Programación orientada a objetos - Se tendra acceso a un usuario
 }
