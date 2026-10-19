@@ -7,9 +7,7 @@ import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    boolean existsByName(String name);
+        boolean existsByNameIgnoreCase(String name);
 
-    boolean existsByNameAndIdNot(String name, Long id);
-
-    Optional<Role> findByName(String name);
+        boolean existsByNameIgnoreCaseAndIdNot(String name, Long id); // Verificar que no exista con ese nombre, ni con el ID que le voy a asignar 
 }

@@ -18,4 +18,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // aca se hace un join
     @EntityGraph(attributePaths = {"sessions"}) // aca se le dice al user que tiene una lista llamada sessions
     Optional<User> findWithSessionsById(Long id); // toma esas sessions y trae las pertenecientes a x usuario
+
+        // Aquí hace un JOIN de tres niveles (Tres Tablas), del usuario va a la intermedia (UserRole) y de la intermedia a los roles
+
+        // SELECT * FROM user_roles ON user_roles.user_id JOIN roles on user_roles.role_id = roles.id WHERE user.id = ?
+        @EntityGraph(attributePaths = {"userRoles", "userRoles.role"})
+        Optional<User> findWithRolesById(Long id); // Dado un ID de usuario encuentre unos roles
 }
