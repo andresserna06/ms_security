@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(
         name = "permissions",
@@ -43,4 +46,10 @@ public class Permission {
             length = 100
     )
     private String model;
+
+    @OneToMany(
+            mappedBy = "permission",
+            fetch = FetchType.LAZY
+    )
+    private List<RolePermission> rolePermissions = new ArrayList<>();
 }

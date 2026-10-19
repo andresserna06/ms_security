@@ -6,6 +6,7 @@ import com.uc.ms_security.dto.permission.UpdatePermissionDTO;
 import com.uc.ms_security.entity.Permission;
 import com.uc.ms_security.mapper.PermissionMapper;
 import com.uc.ms_security.repository.PermissionRepository;
+import com.uc.ms_security.repository.RolePermissionRepository;
 import com.uc.ms_security.exception.ApplicationException;
 import com.uc.ms_security.exception.ErrorCase;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class PermissionService {
 
     private final PermissionRepository permissionRepository;
+    private final RolePermissionRepository rolePermissionRepository;
     private final PermissionMapper permissionMapper;
 
     public PermissionResponseDTO create(CreatePermissionDTO dto) {
@@ -71,6 +73,14 @@ public class PermissionService {
 
     public void delete(Long id) {
         Permission permission = findPermission(id);
+
+        if (rolePermissionRepository.existsByPermissionId(id)) {
+            throw new ApplicationException(
+                    ErrorCase.INVALID_OPERATION,
+                    "No se puede eliminar un permiso que está asignado"
+            );
+        }
+
         permissionRepository.delete(permission);
     }
 }

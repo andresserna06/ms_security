@@ -1,5 +1,6 @@
 package com.uc.ms_security.service;
 
+import com.uc.ms_security.dto.role.RolePermissionsResponseDTO;
 import com.uc.ms_security.dto.role.RoleRequestDTO;
 import com.uc.ms_security.dto.role.RoleResponseDTO;
 import com.uc.ms_security.entity.Role;
@@ -80,6 +81,19 @@ public class RoleService {
         }
 
         roleRepository.delete(role);
+    }
+
+    public RolePermissionsResponseDTO findByIdAndPermissions(Long id) {
+        Role role = roleRepository
+                .findWithPermissionsById(id)
+                .orElseThrow(
+                        () -> new ApplicationException(
+                                ErrorCase.NOT_FOUND,
+                                "Rol no encontrado con id: " + id
+                        )
+                );
+
+        return roleMapper.toPermissionsResponseDTO(role);
     }
 
     private Role findEntityById(Long id) {
