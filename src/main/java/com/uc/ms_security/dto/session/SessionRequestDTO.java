@@ -1,6 +1,5 @@
 package com.uc.ms_security.dto.session;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,14 +11,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public abstract class BaseSessionDTO {
+public class SessionRequestDTO {
 
     @NotBlank(
             message = "El token es obligatorio"
-    )
-    @Size(
-            max = 512,
-            message = "El token no puede superar los 512 caracteres"
     )
     private String token;
 
@@ -27,14 +22,14 @@ public abstract class BaseSessionDTO {
             message = "La fecha de expiración es obligatoria"
     )
     @Future(
-            message = "La fecha de expiración debe ser una fecha y hora futura"
+            message = "La fecha de expiración debe estar en el futuro"
     )
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime expiration;
 
     @Size(
+            min = 6,
             max = 10,
-            message = "El código 2FA no puede superar los 10 caracteres"
+            message = "El código 2FA debe tener entre 6 y 10 caracteres"
     )
     private String code2FA;
 }

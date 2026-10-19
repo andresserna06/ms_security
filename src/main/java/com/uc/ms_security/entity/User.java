@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -45,4 +48,12 @@ public class User {
             fetch = FetchType.LAZY // Este Fetch indica que cada que se consulte a un usuario, no se cargue su perfil hasta que sea necesario
     )
     private Profile profile;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Session> sessions = new ArrayList<>();
 }

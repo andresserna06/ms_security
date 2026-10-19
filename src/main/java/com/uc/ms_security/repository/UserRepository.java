@@ -14,4 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @EntityGraph(attributePaths = {"profile"})
     Optional<User> findWithProfileById(Long id); // El "With" es un JOIN internamente - Busca el usuario con el perfil del ID
+
+    // aca se hace un join
+    @EntityGraph(attributePaths = {"sessions"}) // aca se le dice al user que tiene una lista llamada sessions
+    Optional<User> findWithSessionsById(Long id); // toma esas sessions y trae las pertenecientes a x usuario
 }

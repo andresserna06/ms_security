@@ -23,7 +23,7 @@ public class Session {
     @Column(
             nullable = false,
             unique = true,
-            length = 512
+            length = 500
     )
     private String token;
 
@@ -38,8 +38,10 @@ public class Session {
     )
     private String code2FA;
 
-    // Relación N a 1 con User (Muchos registros de Session pertenecen a un único User)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
     @JoinColumn(
             name = "user_id",
             nullable = false

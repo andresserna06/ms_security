@@ -6,13 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface SessionRepository extends JpaRepository<Session, Long> {
+public interface SessionRepository
+        extends JpaRepository<Session, Long> {
+
+    List<Session> findAllByUserId(Long userId); // Esto es la consulta para traerse las sessiones de un solo usuario
+
+    Optional<Session> findByIdAndUserId( // Encontrar una session dado un id de session y un id de user
+            Long sessionId,
+            Long userId
+    );
 
     boolean existsByToken(String token);
 
-    boolean existsByTokenAndIdNot(String token, Long id);
-
-    Optional<Session> findByToken(String token);
-
-    List<Session> findByUserId(Long userId);
+    boolean existsByTokenAndIdNot( // verifica que exista un token para evitar posibles ataques
+            String token,
+            Long id
+    );
 }
