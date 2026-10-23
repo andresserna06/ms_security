@@ -12,7 +12,7 @@ import com.uc.ms_security.exception.ErrorCase;
 import com.uc.ms_security.mapper.UserMapper;
 import com.uc.ms_security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,35 +22,88 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder; // Inyección de passwordEncoder, visto en el decorador Bean
 
     public UserResponseDTO create(CreateUserDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new ApplicationException(
                     ErrorCase.ALREADY_EXISTS,
-                    "Ya existe un usuario con este email"
+                    "El correo ya está registrado"
             );
         }
-        User user = userMapper.toEntity(dto);
+
+        String encodedPassword = passwordEncoder.encode(
+                dto.getPassword()
+        );
+
+        User user = userMapper.toEntity(
+                dto,
+                encodedPassword
+        );
+
         User savedUser = userRepository.save(user);
+
         return userMapper.toResponseDTO(savedUser);
     }
+
     public List<UserResponseDTO> findAll() {
-        List<User> users =userRepository.findAll();
-        return userMapper.toResponseDTOList(users);
-    }
-    private User findUser(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException(
-                        ErrorCase.NOT_FOUND,
-                        "Usuario no encontrado con id: " + id
-                ));
+        return userMapper.toResponseDTOList(
+                userRepository.findAll()
+        );
     }
 
     public UserResponseDTO findById(Long id) {
-        User user = findUser(id);
-        return userMapper.toResponseDTO(user);
+        return userMapper.toResponseDTO(
+                findEntityById(id)
+        );
+    }
+
+    public UserResponseDTO update(
+            Long id,
+            UpdateUserDTO dto) {
+
+        User user = findEntityById(id);
+
+        if (userRepository.existsByEmailAndIdNot(
+                dto.getEmail(),
+                id)) {
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
+                    "El correo ya está registrado"
+            );
+        }
+
+        userMapper.updateBasicData(dto, user);
+
+        if (dto.getPassword() != null
+                && !dto.getPassword().isBlank()) {
+
+            String encodedPassword = passwordEncoder.encode(
+                    dto.getPassword()
+            );
+
+            user.setPassword(encodedPassword);
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toResponseDTO(updatedUser);
+    }
+
+    public void delete(Long id) {
+        User user = findEntityById(id);
+        userRepository.delete(user);
+    }
+
+    private User findEntityById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ApplicationException(
+                                ErrorCase.NOT_FOUND,
+                                "Usuario no encontrado"
+                        )
+                );
     }
 
     public UserDetailResponseDTO findByIdWithProfile(Long id) {
@@ -76,23 +129,6 @@ public class UserService {
         return userMapper.toSessionsResponseDTO(user);
     }
 
-    public UserResponseDTO update(Long id, UpdateUserDTO dto) {
-        User user = findUser(id);
-        if (userRepository.existsByEmailAndIdNot(dto.getEmail(), id)) {
-            throw new ApplicationException(
-                    ErrorCase.ALREADY_EXISTS,
-                    "El email pertenece a otro usuario"
-            );
-        }
-        userMapper.updateEntity(dto, user);
-        User updatedUser = userRepository.save(user);
-        return userMapper.toResponseDTO(updatedUser);
-    }
-    public void delete(Long id) {
-        User user = findUser(id);
-        userRepository.delete(user);
-    }
-
     public UserRolesResponseDTO findByIdAndRoles(Long id) {
         User user = userRepository
                 .findWithRolesById(id)
@@ -106,7 +142,3 @@ public class UserService {
         return userMapper.toRolesResponseDTO(user);
     }
 }
-
-
-
-
